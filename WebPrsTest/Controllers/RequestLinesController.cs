@@ -16,10 +16,13 @@ namespace WebPrsTest.Controllers
     {
         private readonly AppDbContext _context;
 
+
         public RequestLinesController(AppDbContext context)
         {
             _context = context;
         }
+
+
 
         private void RecalcRequestTotal(int requestId) {
             //read requestlines from request id call get by primary id
@@ -32,6 +35,7 @@ namespace WebPrsTest.Controllers
             _context.SaveChanges();
           
         }
+
 
         // GET: api/RequestLines
         [HttpGet]

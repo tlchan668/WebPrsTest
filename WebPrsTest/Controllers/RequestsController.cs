@@ -16,16 +16,18 @@ namespace WebPrsTest.Controllers
     {
         private readonly AppDbContext _context;
 
+        public const string StatusNew = "NEW";
+        public const string StatusEdit = "EDIT";
+        public const string StatusReview = "REVIEW";
+        public const string StatusApproved = "APPROVED";
+        public const string StatusRejected = "REJECTED";
+
         public RequestsController(AppDbContext context)
         {
             _context = context;
         }
-
-        /*//get requests in review that not own
-        public IEnumerable<Request> GetRequeststoReviewNotOwn(int userId) {
-            return context.Requests
-                .Where(x => x.UserId != userId && x.Status == StatusReview).ToList();
-        }*/
+       
+        
 
         // GET: api/Requests
         [HttpGet]
@@ -34,6 +36,13 @@ namespace WebPrsTest.Controllers
             return await _context.Request.ToListAsync();
         }
 
+        //getall requests back that are in review status but not your id 
+        // GET: api/requests/getRequestsReview/5
+        [HttpGet("GetRequestsReview/{id}")]
+        public async Task<ActionResult<IEnumerable<Request>>> GetRequestsReview(int id) {
+
+            return await _context.Request.Where(x => x.UserId != id && x.Status == StatusReview).ToListAsync();
+        }
         // GET: api/Requests/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Request>> GetRequest(int id)
@@ -90,6 +99,46 @@ namespace WebPrsTest.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRequest", new { id = request.Id }, request);
+        }
+        //Post: api/requests/SetToReview
+        [HttpPost("SetToReview")]
+        public bool SetToReview(Request request) {
+            if (request.Total <= 50) {
+                request.Status = StatusApproved;
+            } else {
+                request.Status = StatusReview;
+            }
+            return Update(request.Id, request);
+        }
+        //POST: api/requests/SetToApproved
+        [HttpPost("SetToApproved")]
+        public bool SetToApproved(Request request) {
+            request.Status = StatusApproved;
+            return Update(request.Id, request);
+        }
+        // POST: api/requests/SetToRejected/5
+        [HttpPost("SetToRejected")]
+        public bool SetToRejected(Request request) {
+            request.Status = StatusRejected;
+            return Update(request.Id, request);
+        }
+        public bool Update(int id, Request request) {
+            //do so only updating the one you want
+            if (request == null) throw new Exception("request cannot be null");
+            if (id != request.Id) throw new Exception("Id and request.Id must match");
+
+            _context.Entry(request).State = EntityState.Modified;//tells state that it is an update not add
+
+            try {
+                _context.SaveChanges();//trap exception for a dup vendor by doing a try catch
+            } catch (DbUpdateException ex) {
+                //if get it what will we do
+                throw new Exception("request must be unique", ex);
+                //give developer the origianl exception thrown by doing ex above
+            } catch (Exception ex) {
+                throw;
+            }
+            return true;
         }
 
         // DELETE: api/Requests/5
