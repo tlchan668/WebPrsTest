@@ -122,6 +122,7 @@ namespace WebPrsTest.Controllers
             request.Status = StatusRejected;
             return Update(request.Id, request);
         }
+
         public bool Update(int id, Request request) {
             //do so only updating the one you want
             if (request == null) throw new Exception("request cannot be null");
@@ -136,7 +137,7 @@ namespace WebPrsTest.Controllers
                 throw new Exception("request must be unique", ex);
                 //give developer the origianl exception thrown by doing ex above
             } catch (Exception ex) {
-                throw;
+                throw new Exception("request", ex);
             }
             return true;
         }

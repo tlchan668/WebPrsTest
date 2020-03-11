@@ -24,12 +24,12 @@ namespace WebPrsTest.Controllers
         //forgot password:  give username, firstname and lastname and returns user or null
         [HttpGet("ForgotPassword/{username}/{Firstname}/{Lastname}")]
         public async Task<ActionResult<User>> ForgotPassword(string username, string firstname, string lastname) {
-            return _context.User.SingleOrDefault(u => u.Username == username && u.Firstname==firstname && u.Lastname == lastname);
+            return await _context.User.SingleOrDefaultAsync(u => u.Username == username && u.Firstname==firstname && u.Lastname == lastname);
         }
         //login method
         [HttpGet("Login/{username}/{password}")]
         public async Task<ActionResult<User>> Login(string username, string password) {
-            return _context.User.SingleOrDefault(u => u.Password == password && u.Username == username);
+            return await _context.User.SingleOrDefaultAsync(u => u.Password == password && u.Username == username);
         }
         // GET: api/Users
         [HttpGet]
